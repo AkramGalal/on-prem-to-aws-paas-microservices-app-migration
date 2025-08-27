@@ -1,8 +1,8 @@
 # On-Prem to AWS Microservices App Migration
 
 ## Introduction
-This repository illustrates the migration of a **multi-tier microservices application** from an on-premises environment to **AWS cloud-native services**.  
-Originally deployed using **Vagrant + Bash** on multiple VMs, the application is now re-architected to leverage **AWS managed services** for scalability, high availability, and reduced operational overhead.
+This repository illustrates the migration of a multi-tier microservices Java application from an on-premises environment to AWS cloud-native services.  
+Originally the application was deployed using Vagrant on multiple VMs on-prem. The application is re-architected to leverage AWS managed services for scalability, high availability, and reduced operational overhead.
 
 ## Application Architecture
 
@@ -11,14 +11,14 @@ The application architecture is composed of 5 microservices. They are:
 | On-Prem VM      | Technology              | AWS Service (Replacement)    |
 |-----------------|-------------------------|------------------------------|
 | Load Balancer   | Nginx                   | Application Load Balancer (ALB) |
-| Application     | Java 11 + Maven + Tomcat| Amazon EC2          |
+| Application     | Tomcat                  | Amazon EC2          |
 | Message Queue   | RabbitMQ                | Amazon MQ |
-| Cache           | Memcached               | Amazon ElastiCache (Memcached)|
-| Database        | MariaDB                 | Amazon RDS (MariaDB)   |
+| Cache           | Memcached               | Amazon ElastiCache |
+| Database        | MariaDB                 | Amazon RDS  |
 
-## AWS Service Deployment
+## Setup and Service Deployment
+   - Launch EC2 instances with bootstrap scripts for the Java app.
    - Deploy ALB to balance traffic across EC2 instances.  
-   - Launch EC2 instances with user-data/bootstrap scripts for the Java app.  
    - Set up RDS with MariaDB as the application’s database.  
-   - Configure ElastiCache (Memcached) for caching.  
-   - Integrate Amazon MQ as the messaging backbone. 
+   - Configure ElastiCache for caching.  
+   - Integrate Amazon MQ as the messaging backbone.
