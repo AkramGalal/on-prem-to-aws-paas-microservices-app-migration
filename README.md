@@ -8,7 +8,7 @@ Originally the application was deployed using Vagrant on multiple VMs on-prem. T
 
 The application architecture is composed of 5 microservices. They are:
 
-| On-Prem VM      | Technology              | AWS Service (Replacement)    |
+| On-Prem VM      | Technology              | AWS Service    |
 |-----------------|-------------------------|------------------------------|
 | Load Balancer   | Nginx                   | Application Load Balancer (ALB) |
 | Application     | Tomcat                  | Amazon EC2          |
