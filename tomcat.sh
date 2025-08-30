@@ -1,66 +1,81 @@
-#!/bin/bash
+#! /usr/bin/bash
 
-# ========= Variables =========
-TOMURL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.75/bin/apache-tomcat-9.0.75.tar.gz"
-JAVA_HOME_DIR="/usr/lib/jvm/java-11-amazon-corretto"
-APP_PROPS="/home/ec2-user/application.properties"
+# Update OS with latest patches
+sudo yum update -y
 
-# ========= Install Dependencies =========
-sudo dnf update -y
-sudo dnf install -y java-11-amazon-corretto java-11-amazon-corretto-devel git maven wget rsync tar unzip mysql
+# Set Repository
+sudo yum install epel-release -y
 
-# ========= Download & Install Tomcat =========
-cd /tmp/
-wget $TOMURL -O tomcatbin.tar.gz
-EXTOUT=$(tar xzvf tomcatbin.tar.gz)
-TOMDIR=$(echo $EXTOUT | cut -d '/' -f1)
+# Install Dependencies
+sudo dnf -y install java-11-openjdk java-11-openjdk-devel
+sudo dnf install git maven wget -y
 
-# Create tomcat user & install directory
-sudo useradd tomcat --shell /sbin/nologin -md /usr/local/tomcat || true
-sudo rsync -avzh /tmp/$TOMDIR/ /usr/local/tomcat/
-sudo chown -R tomcat:tomcat /usr/local/tomcat
+# Change dir to /tmp
+sudo cd /tmp/
 
-# ========= Create Systemd Service =========
-sudo rm -f /etc/systemd/system/tomcat.service
+# Download & Tomcat Package
+sudo wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.75/bin/apache-tomcat-9.0.75.tar.gz
+sudo tar xzvf apache-tomcat-9.0.75.tar.gz
 
-cat <<EOT | sudo tee /etc/systemd/system/tomcat.service
+# Add tomcat user
+sudo useradd --home-dir /usr/local/tomcat --shell /sbin/nologin tomcat
+
+# Copy data to tomcat home dir
+sudo cp -r /tmp/apache-tomcat-9.0.75/* /usr/local/tomcat/
+
+# Make tomcat user owner of tomcat home dir
+sudo chown -R tomcat.tomcat /usr/local/tomcat
+
+# Create tomcat service file
+sudo cat > /etc/systemd/system/tomcat.service << EOF
+
 [Unit]
-Description=Apache Tomcat 9
+Description=Tomcat
 After=network.target
 
 [Service]
-Type=forking
 User=tomcat
-Group=tomcat
 WorkingDirectory=/usr/local/tomcat
-Environment=JAVA_HOME=$JAVA_HOME_DIR
-Environment=CATALINA_PID=/usr/local/tomcat/temp/tomcat.pid
+Environment=JRE_HOME=/usr/lib/jvm/jre
+Environment=JAVA_HOME=/usr/lib/jvm/jre
 Environment=CATALINA_HOME=/usr/local/tomcat
-Environment=CATALINA_BASE=/usr/local/tomcat
-ExecStart=/usr/local/tomcat/bin/startup.sh
+Environment=CATALINE_BASE=/usr/local/tomcat
+ExecStart=/usr/local/tomcat/bin/catalina.sh run
 ExecStop=/usr/local/tomcat/bin/shutdown.sh
-RestartSec=10
-Restart=on-failure
+SyslogIdentifier=tomcat-%i
 
 [Install]
 WantedBy=multi-user.target
-EOT
 
-# ========= Enable & Start Tomcat =========
+EOF
+
+# Reload systemd files
 sudo systemctl daemon-reload
-sudo systemctl enable tomcat
+
+# Start & Enable service
 sudo systemctl start tomcat
+sudo systemctl enable tomcat
 
-# ========= Clone & Build vprofile Project =========
-cd /opt/
+# CODE BUILD & DEPLOY
+# Download Source code
 sudo git clone -b main https://github.com/hkhcoder/vprofile-project.git
-cd vprofile-project
-mvn clean install -DskipTests
 
-# ========= Deploy WAR into Tomcat =========
+# Update configuration
+sudo cd vprofile-project
+
+# Build code
+# Run below command inside the repository (vprofile-project)
+sudo mvn install
+
+# Deploy artifact
 sudo systemctl stop tomcat
-sleep 10
 sudo rm -rf /usr/local/tomcat/webapps/ROOT*
 sudo cp target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
-sudo chown -R tomcat:tomcat /usr/local/tomcat/webapps
 sudo systemctl start tomcat
+sudo chown tomcat.tomcat /usr/local/tomcat/webapps -R
+sudo systemctl restart tomcat
+
+# Remove Java 17 for incompatibility  
+sudo systemctl stop tomcat
+sudo dnf remove java-17-openjdk* -y
+sudo systemctl restart tomcat
