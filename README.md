@@ -19,7 +19,6 @@ The application architecture is composed of 5 microservices. They are:
 
 <img width="2048" height="1302" alt="473799416-8d9c68fa-2f3c-4a95-b9e6-da550952c2be" src="https://github.com/user-attachments/assets/61edd283-f961-490c-a88a-b6cead84de52" />
 
-
 ## AWS Services Deployment
 
 ### 1. Security Groups
@@ -27,6 +26,7 @@ The application architecture is composed of 5 microservices. They are:
    - A) one security group for DB, MQ, Elasticache and EC2 (APP-SG).
       - Inbound
         <img width="3261" height="1119" alt="SG" src="https://github.com/user-attachments/assets/0403c79c-b273-4ef5-bc56-a825a369a514" />
+        
       - Outbound: All traffic.
 
    - B) One security group for the load balancer (ALB-SG).
@@ -38,24 +38,29 @@ The application architecture is composed of 5 microservices. They are:
 - Template: Free tier.  
 - Create credentials for DB access.  
 - Assign (APP-SG) security group.
+  
   <img width="3210" height="1558" alt="db" src="https://github.com/user-attachments/assets/86a35357-bbad-451e-9806-044485d5d5ca" />
-
 
 ### 3. Message Queue (Amazon MQ)
 - Choose Amazon MQ service, then Rabbit MQ.
 - Select single cluster, then the instance type chooses “mq.t3.micro”.
 - Assign (APP-SG) security group.
+  
   <img width="3763" height="1704" alt="MQ" src="https://github.com/user-attachments/assets/35be6fb5-18ce-4f8b-aebc-966c41ce3607" />
 
 ### 4. Cache (Amazon Elasticache)
 - Choose Elasticache service with the minimal free tier requirement.
 - Assign (APP-SG) security group.
+  
   <img width="3245" height="1151" alt="mmc" src="https://github.com/user-attachments/assets/dcae8f7e-0b2d-4073-8219-8107bdf709c7" />
 
 ### 5. Application (EC2)
 - Choose EC2 service with Amazon Linux image.
 - Create the key and assign the application security group (APP-SG).
 - From advanced details, go to “User data” and select “tomcat.sh” script attached on the project repo to provision the EC2.
+  
+  <img width="3249" height="1542" alt="ec2" src="https://github.com/user-attachments/assets/bbd0c0cc-246d-4c02-a539-d399d17bc40b" />
+  
 - After creating EC2, clone the project directory.
   ```bash
   git clone -b main https://github.com/hkhcoder/vprofile-project.git
@@ -75,7 +80,7 @@ The application architecture is composed of 5 microservices. They are:
 - Copy database file from the project directory on the EC2 to RDS
   ```bash
    cd vprofile-project
-   mysql -h database-app.cbsumi2ok52c.eu-north-1.rds.amazonaws.com -u admin -padmin123 accounts < src/main/resources/db_backup.sql
+   mysql -h <DB.AWS.Endpoint> -u admin -padmin123 accounts < src/main/resources/db_backup.sql
   
 - Build the application using maven
   ```bash
@@ -99,8 +104,22 @@ The application architecture is composed of 5 microservices. They are:
   cd vprofile-project/
   vim src/main/resources/application.properties
 
+### 6. Load Balancer (ALB)
+- Select Target groups --> create target group --> Instances.
+- Select Protocol HTTP and port 8080.
+- Select Health check protocol HTTP and Health check path “\login”, then create.
+- After creating the target group add in it the EC2 of the applicaion.
+  
+  <img width="3273" height="1461" alt="targetgroup" src="https://github.com/user-attachments/assets/5d2b1f83-a0c2-4b7d-8082-1182dcc557f2" />
 
+- Create the load balancer by selecting “Load Balancers” service, then ALB.
+- Select Internet-facing scheme, and VPC.
+- Select availability Zones and subnets.
+- In “Listeners and routing” choose HTTP and port 80 and in “Default action” select created target group, then create the load balancer.
+  
+  <img width="3312" height="1351" alt="ALB" src="https://github.com/user-attachments/assets/53a2d302-e213-4743-99aa-d8eae23608a3" />
 
+- After creating the loadbalancer, copy its DNS name and paste it into the web browser to access the application GUI.
 
 
 
