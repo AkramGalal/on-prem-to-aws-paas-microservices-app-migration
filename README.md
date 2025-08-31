@@ -38,19 +38,19 @@ The application architecture is composed of 5 microservices. They are:
 - Template: Free tier.  
 - Create credentials for DB access.  
 - Assign (APP-SG) security group.
-- <img width="3210" height="1558" alt="db" src="https://github.com/user-attachments/assets/86a35357-bbad-451e-9806-044485d5d5ca" />
+  <img width="3210" height="1558" alt="db" src="https://github.com/user-attachments/assets/86a35357-bbad-451e-9806-044485d5d5ca" />
 
 
 ### 3. Message Queue (Amazon MQ)
 - Choose Amazon MQ service, then Rabbit MQ.
 - Select single cluster, then the instance type chooses “mq.t3.micro”.
 - Assign (APP-SG) security group.
-- <img width="3763" height="1704" alt="MQ" src="https://github.com/user-attachments/assets/35be6fb5-18ce-4f8b-aebc-966c41ce3607" />
+  <img width="3763" height="1704" alt="MQ" src="https://github.com/user-attachments/assets/35be6fb5-18ce-4f8b-aebc-966c41ce3607" />
 
 ### 4. Cache (Amazon Elasticache)
 - Choose Elasticache service with the minimal free tier requirement.
 - Assign (APP-SG) security group.
-- <img width="3245" height="1151" alt="mmc" src="https://github.com/user-attachments/assets/dcae8f7e-0b2d-4073-8219-8107bdf709c7" />
+  <img width="3245" height="1151" alt="mmc" src="https://github.com/user-attachments/assets/dcae8f7e-0b2d-4073-8219-8107bdf709c7" />
 
 ### 5. Application (EC2)
 - Choose EC2 service with Amazon Linux image.
@@ -75,8 +75,6 @@ The application architecture is composed of 5 microservices. They are:
 - Copy database file from the project directory on the EC2 to RDS
   ```bash
    cd vprofile-project
-  
-   ```sql
    mysql -h database-app.cbsumi2ok52c.eu-north-1.rds.amazonaws.com -u admin -padmin123 accounts < src/main/resources/db_backup.sql
   
 - Build the application using maven
@@ -93,7 +91,7 @@ The application architecture is composed of 5 microservices. They are:
 - Application needs Java 11 to work, in case of other version of Java is the default, choose version 11:
   ```bash
    systemctl stop tomcat
-   sudo alternatives --config java (then select the version)
+   sudo alternatives --config java
    systemctl restart tomcat
 
 - Adjust the application configuration to point out to the endpoints of the AWS services.
