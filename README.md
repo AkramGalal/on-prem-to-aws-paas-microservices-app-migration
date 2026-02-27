@@ -1,9 +1,9 @@
-# On-Prem to AWS IaaS App Migration
+# On-Prem to AWS PaaS App Migration
 
 ## Introduction
-This repository illustrates the migration of a multi-tier microservices Java application from an on-premises environment to AWS IaaS services.
+This repository illustrates the migration of a multi-tier microservices Java application from an on-premises environment to AWS PaaS services.
 
-Originally, the application was deployed using Vagrant on multiple VMs on-prem. The application is re-architected to leverage AWS managed Infrastructure as a Services (IaaS) for scalability, high availability, and reduced operational overhead.
+Originally, the application was deployed using Vagrant on multiple VMs on-prem. The application is re-architected to leverage AWS managed Platform as a Services (PaaS) for scalability, high availability, and reduced operational overhead.
 
 ## Application Architecture
 
